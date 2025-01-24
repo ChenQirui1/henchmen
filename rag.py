@@ -5,6 +5,7 @@ from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from smolagents import HfApiModel, CodeAgent
 
+from markdown_tool import MarkdownTool
 from retriever import RetrieverTool
 
 load_dotenv()
@@ -36,7 +37,10 @@ retriever_tool = RetrieverTool(docs_processed)
 
 model_id = "mistralai/Mistral-7B-Instruct-v0.2"
 agent = CodeAgent(
-    tools=[retriever_tool],
+    tools=[
+        retriever_tool,
+        MarkdownTool(),
+    ],
     model=HfApiModel(
         # model_id="PowerInfer/SmallThinker-3B-Preview",
         model_id=model_id,
@@ -47,7 +51,9 @@ agent = CodeAgent(
     verbosity_level=2,
 )
 
-agent_output = agent.run("Fuck hugging face, what do you say to that")
+message = "Send to knowledge base: Polar bears have black skin that absorbs UV light to keep them warm. Their white fur reflects light, making them blend in with their surroundings"
+
+agent_output = agent.run(f"Update the knowledge base with this information, {message}")
 
 print("Final output:")
 print(agent_output)
