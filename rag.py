@@ -5,7 +5,7 @@ from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from smolagents import HfApiModel, CodeAgent
 
-from markdown_tool import MarkdownTool
+from markdown_editor import MarkdownTool
 from retriever import RetrieverTool
 
 load_dotenv()
@@ -30,30 +30,35 @@ text_splitter = RecursiveCharacterTextSplitter(
 docs_processed = text_splitter.split_documents(source_docs)
 
 
-retriever_tool = RetrieverTool(docs_processed)
+# retriever_tool = RetrieverTool(docs_processed)
+
+print(type(docs_processed[0]))
+markdown_tool = MarkdownTool()
 
 # model_id = "meta-llama/Llama-3.3-70B-Instruct"
 # model_id = "facebook/opt-125m"
 
 model_id = "mistralai/Mistral-7B-Instruct-v0.2"
+# model_id = "deepseek-ai/DeepSeek-R1"
 agent = CodeAgent(
     tools=[
-        retriever_tool,
-        MarkdownTool(),
+        # retriever_tool,
+        markdown_tool,
     ],
     model=HfApiModel(
         # model_id="PowerInfer/SmallThinker-3B-Preview",
         model_id=model_id,
         token=os.getenv("HF_TOKEN"),
         timeout=300,
+        temperature=0.5,
     ),
     max_steps=4,
     verbosity_level=2,
 )
 
-message = "Send to knowledge base: Polar bears have black skin that absorbs UV light to keep them warm. Their white fur reflects light, making them blend in with their surroundings"
+message = "Polar bears have black skin that absorbs UV light to keep them warm. Their white fur reflects light, making them blend in with their surroundings"
 
-agent_output = agent.run(f"Update the knowledge base with this information, {message}")
+agent_output = agent.run(f"Write the knowledge base with this information, {message}")
 
 print("Final output:")
 print(agent_output)
